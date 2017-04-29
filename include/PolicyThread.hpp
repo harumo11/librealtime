@@ -6,6 +6,8 @@
 #include <chrono>
 #include <functional>
 #include <cmath>
+#include <mutex>
+#include <cstring>
 #include <unistd.h>
 #include <pthread.h>
 #include <sched.h>
@@ -20,15 +22,9 @@
  * the thread's loop is invoked with strict frequency.
  * This thread class allows you to use like std::thread.
  */
-class RealtimeThread {
+class PolicyThread {
 
 	protected:
-		/**
-		 * @brief period[sec] of thread loop.
-		 */
-		double periodSecond = 0;					 
-
-
 		/**
 		 * @brief If started, set true, Othrewise false.
 		 */
@@ -36,17 +32,20 @@ class RealtimeThread {
 
 
 		/**
-		 * @brief If true, break realtime while loop. This is checkd every loop.
+		 * @brief A policy param
 		 */
-		bool shouldEnd = false;
+		int policy;
+
+		/**
+		 * @brief A priority param
+		 */
+		int priority = 0;
 
 
 		/**
-		 * @brief period[nanosec] of thread loop.
-		 * 
-		 * This variable is converted from periodSecond.
+		 * @brief If true, break realtime while loop. This is checkd every loop.
 		 */
-		unsigned long long periodNonoSecond = 0;
+		bool shouldEnd = false;
 
 
 		/**
@@ -62,39 +61,21 @@ class RealtimeThread {
 
 
 		/**
-		 * @brief Get this thread Id using system call.
-		 *
-		 * @return This thread Id
-		 */
-		pid_t gettid(void)
-		{
-			return syscall(SYS_gettid);
-		}
-
-
-		/**
 		 * @brief Set parameters to make real time thread using posix api.
 		 */
 		void init()
 		{
 			Logger console;
+
+			sched_param sch;
+			pthread_getschedparam(this->thisThread.native_handle(), &this->policy, &sch);
+			sch.sched_priority = this->priority;
+
+			if (pthread_setschedparam(this->thisThread.native_handle(), SCHED_FIFO, &sch)) {
+				std::cout << std::strerror(errno) << std::endl;
+				console.error("faild to setschedparam");
+			}
 			console.info("Initialization finished");
-
-			if (this->sched_getattr(this->gettid(), &this->attr, sizeof(this->attr), 0) == -1) {
-				std::cout << "[ERROR] Invalid param in sched_getattr() " << std::endl;
-			}
-
-			this->attr.size = sizeof(attr);
-			uint32_t SCHED_DEADLINE = 6;
-			this->attr.sched_policy = SCHED_DEADLINE;
-			this->attr.sched_runtime = this->periodNonoSecond;
-			this->attr.sched_period  = this->periodNonoSecond;
-			this->attr.sched_deadline = this->periodNonoSecond;
-
-			if (this->sched_setattr(this->gettid(), &this->attr, 0) == -1) {
-				std::cout << "[ERROR] Invalid param in sched_setattr() " << std::endl;
-				std::cout << "Did you execute with super user privilege? " << std::endl;
-			}
 		}
 
 
@@ -106,14 +87,10 @@ class RealtimeThread {
 			Logger console;
 			console.info("Making Loop");
 
-			auto timePoint = std::chrono::high_resolution_clock::now();
 			while (!this->shouldEnd) {
-				auto T = std::chrono::high_resolution_clock::now() + std::chrono::nanoseconds(this->periodNonoSecond);
 
 				this->function();
 
-				timePoint = std::chrono::high_resolution_clock::now();
-				std::this_thread::sleep_until(T);
 			}
 		}
 	
@@ -143,21 +120,10 @@ class RealtimeThread {
 		 * @param args Arguments of func. You can set not only one argument but also multiple arguments.
 		 */
 		template <class F, class... Args>
-		RealtimeThread(double frequency, F&& func, Args&&... args)
+		PolicyThread(F&& func, Args&&... args)
 		{
 			Logger console;
 			console.info("Start constructor");
-
-			if (frequency <= 0) {
-				console.error("Get invalid freequency");
-			}
-			else {
-				console.info("Get valid freequency");
-				this->periodSecond = 1/frequency;
-				this->periodNonoSecond = static_cast<unsigned long long>(this->periodSecond * std::pow(10, 9));
-				std::cout << "period second = " << this->periodSecond << std::endl;
-				std::cout << "period nanosecond = " << this->periodNonoSecond << std::endl;
-			}
 
 			this->function = std::bind(std::forward<F>(func), std::forward<Args>(args)...);
 			console.info("Store the func");
@@ -165,19 +131,21 @@ class RealtimeThread {
 
 
 		/**
-		 * @brief This method allows to start thread loop.
+		 * @brief Start thread with the priority and FIFO policy.
+		 *
+		 * @param priority A priority. Set higher number, Get Higher priority. Default priority is 0.
 		 */
-		void start(bool shouldRealtime)
+		void start(int priority = 0)
 		{
+			this->priority = priority;
+
 			Logger console;
 			console.info("Assigned this thread");
 			this->started = true;
-			this->thisThread = std::thread(&RealtimeThread::makeLoop, this);
+			this->thisThread = std::thread(&PolicyThread::makeLoop, this);
 
-			//Make realtime thread using this->thisThread's id.
-			if (shouldRealtime) {
-				this->init();
-			}
+			//Make thread with priority and policy FIFO
+			this->init();
 		}
 
 
@@ -239,6 +207,9 @@ class RealtimeThread {
 		}
 
 
+		/**
+		 * @brief Terminate thread loop.
+		 */
 		void end()
 		{
 			Logger console;
@@ -249,11 +220,22 @@ class RealtimeThread {
 
 
 		/**
+		 * @brief Get Priority from running thread.
+		 *
+		 * @return A priority of the thread.
+		 */
+		int getPriority(){
+			pthread_getschedparam(this->thisThread.native_handle(), &this->policy, &this->sch);
+			return this->sch.sched_priority;
+		}
+
+
+		/**
 		 * @brief A destructor of real time thread.
 		 *
 		 * Invoke join() or detach().
 		 */
-		~RealtimeThread()
+		~PolicyThread()
 		{
 			Logger console;
 
