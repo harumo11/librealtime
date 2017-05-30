@@ -44,3 +44,12 @@ int main(void){
 	pth.end();
 }
 
+## 3. Install
+```
+cd librealtime
+mkdir build
+cd build
+cmake ../
+make
+sudo make install
+```
