@@ -43,6 +43,7 @@ int main(void){
 	sleep(10);
 	pth.end();
 }
+```
 
 ## 3. Install
 ```
