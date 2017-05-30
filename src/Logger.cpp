@@ -1,7 +1,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include "Logger.hpp"
+#include "../include/librealtime/Logger.hpp"
 
 /**
  * @brief Set current hour, minute and second to member value.
