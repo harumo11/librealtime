@@ -2,7 +2,7 @@ librealtime
 ==============
 ## A modern and extremely easy C++11 library of real time processing.
 
-## 1.Interoduction
+## 1.Introduction
 
 This library's target is support to use real-time processing
 which is needed system-control field.
@@ -15,7 +15,7 @@ You can make real-time thread like std::thread.
 |Name|Discription|
 |----|-----------|
 |RealtimeThread|A real-time periodic thread|
-|PolicyThread|A Loop thread with priority|
+|PolicyThread|A std::thread added priority|
 
 ## 2. How to use
 
@@ -48,9 +48,5 @@ int main(void){
 ## 3. Install
 ```
 cd librealtime
-mkdir build
-cd build
-cmake ../
-make
-sudo make install
+sudo ./install.sh
 ```
