@@ -1,6 +1,6 @@
 #include <iostream>
 #include <unistd.h>
-#include "../include/PolicyThread.hpp"
+#include <librealtime/PolicyThread.hpp>
 
 using std::cout;
 using std::endl;

@@ -4,7 +4,7 @@
 #include <fstream>
 #include <chrono>
 #include <unistd.h>
-#include "RealtimeThread.hpp"
+#include <librealtime/RealtimeThread.hpp>
 
 using namespace std;
 
@@ -23,7 +23,7 @@ int main(int argc, char const* argv[])
 {
 	RealtimeThread th(1, test);
 	th.start(true);
-	sleep(10);
+	sleep(3);
 	th.end();
 
 	cout << "Recode time" << endl;
