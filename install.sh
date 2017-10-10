@@ -9,7 +9,6 @@ cp -r librealtime /usr/local/include
 
 echo Make the documentation
 
-mkdir doc
 doxygen Doxyfile
 
 echo Finish Installation of librealtime
