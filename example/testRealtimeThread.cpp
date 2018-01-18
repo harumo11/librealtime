@@ -4,7 +4,7 @@
 #include <fstream>
 #include <chrono>
 #include <unistd.h>
-#include <librealtime/RealtimeThread.hpp>
+#include "../librealtime/RealtimeThread.hpp"
 
 using namespace std;
 
@@ -21,18 +21,21 @@ void test()
 
 int main(int argc, char const* argv[])
 {
-	RealtimeThread th(1000, test);
+	RealtimeThread th(100, test);
 	th.start(true);
-	sleep(3);
+	sleep(1);
 	th.end();
 
 	cout << "Recode time" << endl;
 	std::ofstream file("log.csv");
 	
+	int i = 0;
 	for(auto &e : vec){
 		file << e.time_since_epoch().count() << std::endl;
 		cout  << e.time_since_epoch().count() << std::endl;
+		i++;
 	}
+	cout << "[count] : " << i << std::endl;
 	file.close();
 	
 	return 0;

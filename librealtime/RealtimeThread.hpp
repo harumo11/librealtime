@@ -141,9 +141,9 @@ class RealtimeThread {
 			this->attr.size = sizeof(attr);
 			uint32_t SCHED_DEADLINE = 6;
 			this->attr.sched_policy = SCHED_DEADLINE;
-			this->attr.sched_runtime = this->periodNonoSecond;
+			this->attr.sched_runtime = this->periodNonoSecond*0.8;
+			this->attr.sched_deadline = this->periodNonoSecond*0.9;
 			this->attr.sched_period  = this->periodNonoSecond;
-			this->attr.sched_deadline = this->periodNonoSecond;
 
 			if (this->sched_setattr(this->gettid(), &this->attr, 0) == -1) {
 				std::cout << "[ERROR] Invalid param in sched_setattr() " << std::endl;
