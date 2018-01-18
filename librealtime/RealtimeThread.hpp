@@ -141,8 +141,8 @@ class RealtimeThread {
 			this->attr.size = sizeof(attr);
 			uint32_t SCHED_DEADLINE = 6;
 			this->attr.sched_policy = SCHED_DEADLINE;
-			this->attr.sched_runtime = this->periodNonoSecond*0.8;
-			this->attr.sched_deadline = this->periodNonoSecond*0.9;
+			this->attr.sched_runtime = this->periodNonoSecond*0.3;
+			this->attr.sched_deadline = this->periodNonoSecond;
 			this->attr.sched_period  = this->periodNonoSecond;
 
 			if (this->sched_setattr(this->gettid(), &this->attr, 0) == -1) {
@@ -164,7 +164,9 @@ class RealtimeThread {
 				this->function();
 
 				timePoint = std::chrono::high_resolution_clock::now();
-				std::this_thread::sleep_until(T);
+				//std::this_thread::sleep_until(T);
+				while (T >= std::chrono::high_resolution_clock::now()) {
+				}
 			}
 		}
 	
@@ -200,7 +202,7 @@ class RealtimeThread {
 				std::cout << "[RealtimeThread] Get invalid freequency" << std::endl;
 			}
 			else {
-				this->periodSecond = 1/frequency;
+				this->periodSecond = (double)1/frequency;
 				this->periodNonoSecond = static_cast<unsigned long long>(this->periodSecond * std::pow(10, 9));
 				std::cout << "period second = " << this->periodSecond << std::endl;
 				std::cout << "period nanosecond = " << this->periodNonoSecond << std::endl;

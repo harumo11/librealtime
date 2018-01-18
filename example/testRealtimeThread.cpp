@@ -21,9 +21,9 @@ void test()
 
 int main(int argc, char const* argv[])
 {
-	RealtimeThread th(100, test);
+	RealtimeThread th(1000, test);
 	th.start(true);
-	sleep(1);
+	sleep(60);
 	th.end();
 
 	cout << "Recode time" << endl;
