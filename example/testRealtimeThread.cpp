@@ -23,7 +23,7 @@ int main(int argc, char const* argv[])
 {
 	RealtimeThread th(1000, test);
 	th.start(true);
-	sleep(60);
+	sleep(10);
 	th.end();
 
 	cout << "Recode time" << endl;

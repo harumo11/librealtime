@@ -164,7 +164,8 @@ class RealtimeThread {
 				this->function();
 
 				timePoint = std::chrono::high_resolution_clock::now();
-				//std::this_thread::sleep_until(T);
+
+				//sleep until next waking time.
 				while (T >= std::chrono::high_resolution_clock::now()) {
 				}
 			}
