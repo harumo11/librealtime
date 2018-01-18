@@ -1,6 +1,6 @@
 librealtime
 ==============
-## A modern and extremely easy C++11 library of real time processing.
+## A modern and extremely easy header only C++11 library of real time processing.
 
 ## 1.Introduction
 
@@ -29,14 +29,14 @@ void func(int num){
 }
 
 int main(void){
-    //Set attribute   (Freequency, function, attribute)
+    //(Freequency, function, attribute)
 	RealtimeThread rth(10, func, 1234);
 	//Run in 10 sec. If set true, get RealTime thread, otherwise, nomal priodic thread.
 	rth.start(true);
 	sleep(10);
 	rth.end();
 
-	//Set attribute  (function, attribute)
+	//(function, attribute)
 	PolicyThread pth(func, 5678);
 	//Run with priority 20
 	pth.start(20);
@@ -46,7 +46,10 @@ int main(void){
 ```
 
 ## 3. Install
+Library
 ```
+git clone xxx
 cd librealtime
-sudo ./install.sh
+sudo cp -r librealtime /usr/local/include
 ```
+

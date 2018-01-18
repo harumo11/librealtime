@@ -189,7 +189,7 @@ class RealtimeThread {
 		/**
 		 * @brief A constructor of real time thread class.
 		 * 
-		 * @param frequency Frequency of executing task of the thread.
+		 * @param frequency Frequency of executing task of the thread [Hz].
 		 * @param func Function to execute in thread loop.
 		 * @param args Arguments of func. You can set not only one argument but also multiple arguments.
 		 */

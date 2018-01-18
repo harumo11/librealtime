@@ -14,14 +14,14 @@ void test()
 {
 	std::chrono::high_resolution_clock::time_point point;
 	point = std::chrono::high_resolution_clock::now();
-	std::cout << "Execute" << std::endl;
-	std::cout << point.time_since_epoch().count() << std::endl;
+	//std::cout << "Execute" << std::endl;
+	//std::cout << point.time_since_epoch().count() << std::endl;
 	vec.push_back(point);
 }
 
 int main(int argc, char const* argv[])
 {
-	RealtimeThread th(1, test);
+	RealtimeThread th(1000, test);
 	th.start(true);
 	sleep(3);
 	th.end();
