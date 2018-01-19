@@ -1,7 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <unistd.h>
-#include <librealtime/PolicyThread.hpp>
+#include "../librealtime/PolicyThread.hpp"
 
 using std::cout;
 using std::endl;
@@ -9,9 +9,10 @@ using std::endl;
 int i = 0;
 
 void test(){
-	for (i = 0; i < 10; i++) {
-		auto T = std::chrono::high_resolution_clock::now()+std::chrono::nanoseconds(1000000);
-		std::this_thread::sleep_until(T);
+	for (i = 0; i < 10; ) {
+		std::cout << "Hi!! I'm thread" << std::endl;
+		sleep(1);
+		i++;
 	}
 }
 
@@ -19,10 +20,11 @@ int main(int argc, char const* argv[])
 {
 
 	PolicyThread pth(test);
-	pth.start(99);
-	sleep(1);
+	pth.start(20);
 	cout << pth.getPriority() << endl;
-	pth.end();
+	//if (pth.joinable()) {
+	//	pth.join();
+	//}
 	std::cout << "[count] " << i << std::endl;
 	
 	return 0;

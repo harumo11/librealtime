@@ -42,12 +42,6 @@ class PolicyThread {
 
 
 		/**
-		 * @brief If true, break realtime while loop. This is checkd every loop.
-		 */
-		bool shouldEnd = false;
-
-
-		/**
 		 * @brief store the thread task.
 		 */
 		std::function<void()> function;
@@ -199,7 +193,7 @@ class PolicyThread {
 		 */
 		void end()
 		{
-			this->shouldEnd = true;
+			this->~PolicyThread();
 		}
 
 
@@ -212,22 +206,5 @@ class PolicyThread {
 			return this->priority;
 		}
 
-
-		/**
-		 * @brief A destructor of real time thread.
-		 *
-		 * Either join() or detach() will called appropriately.
-		 *
-		 * If this thread is joinable, join() is called. Otherwise detach() is called.
-		 */
-		~PolicyThread()
-		{
-			if (this->joinable()) {
-				this->join();
-			}
-			else {
-				this->detach();
-			}
-		}
 };
 
