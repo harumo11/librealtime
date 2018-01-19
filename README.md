@@ -1,23 +1,27 @@
 librealtime
 ==============
-## A modern and extremely easy header only C++11 library of real time processing.
+## A modern and extremely easy header only C++11 library for real time processing in Linux.
 
 ## 1.Introduction
 
 This library's target is support to use real-time processing
 which is needed system-control field.
 
-This library allows you to make strict periodic task 
-without difficult Linux kernel and POSIX API knowledge. 
+This library allows you to make strict periodic task
+without difficult Linux kernel and POSIX API knowledge.
 
 You can make real-time thread like std::thread.
+
+## 2.Contents
+
+This library contains two classes.
 
 |Name|Discription|
 |----|-----------|
 |RealtimeThread|A real-time periodic thread|
 |PolicyThread|A std::thread added priority|
 
-## 2. How to use
+## 3. How to use
 
 ```cpp
 #include <iostream>
@@ -48,8 +52,7 @@ int main(void){
 ## 3. Install
 Library
 ```
-git clone xxx
+git clone https://github.com/harumo11/librealtime.git
 cd librealtime
 sudo cp -r librealtime /usr/local/include
 ```
-
