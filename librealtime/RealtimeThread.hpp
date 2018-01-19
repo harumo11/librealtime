@@ -306,5 +306,15 @@ class RealtimeThread {
 			this->shouldEnd = true;
 		}
 
+		~RealtimeThread(){
+			if (this->joinable()) {
+				this->join();
+			}
+			else {
+				this->detach();
+			}
+
+		}
+
 };
 
