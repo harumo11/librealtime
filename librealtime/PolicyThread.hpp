@@ -110,6 +110,11 @@ class PolicyThread {
 		 * @brief Start thread with the priority and FIFO policy.
 		 *
 		 * @param priority A priority. Set higher number, Get Higher priority. Default priority is 0.
+		 * 
+		 * Starting your thread with FIFO policy with the priority.
+		 * 
+		 * - Maximum priority = 99
+		 * - Minimum priority = 0
 		 */
 		void start(int priority = 0)
 		{
@@ -127,6 +132,13 @@ class PolicyThread {
 		 * @brief Join the real time thread.
 		 *
 		 * @return If Join successfully, return true. Otherwise, false.
+		 *
+		 * Only std::thread::join() will be called in this function.
+		 *
+		 * \NOTE If you want to terminate this thread simply, use end().
+		 * Because this function just calls std::thread::join(), 
+		 * you need to send signal to the thread somehow before you use this function().
+		 * otherwise, this function continues to block, or never comes back.
 		 */
 		bool join()
 		{
@@ -150,6 +162,11 @@ class PolicyThread {
 		 * @brief Detach the real time thread.
 		 *
 		 * @return If Detach successfully, return true. Otherwise false.
+		 *
+		 * std::thread::detach() is called in this function. 
+		 * 
+		 * \NOTE Do not use detach() in order to terminate PolicyThread.
+		 * Please use end() or join().
 		 */
 		bool detach()
 		{
@@ -177,6 +194,8 @@ class PolicyThread {
 
 		/**
 		 * @brief Terminate thread loop.
+		 *
+		 * After end() is called, either join(), or detach() will be called appropriately in ~PolicyThread().
 		 */
 		void end()
 		{
@@ -197,7 +216,9 @@ class PolicyThread {
 		/**
 		 * @brief A destructor of real time thread.
 		 *
-		 * Invoke join() or detach().
+		 * Either join() or detach() will called appropriately.
+		 *
+		 * If this thread is joinable, join() is called. Otherwise detach() is called.
 		 */
 		~PolicyThread()
 		{
