@@ -215,6 +215,8 @@ class RealtimeThread {
 
 		/**
 		 * @brief This method allows to start thread loop.
+		 *
+		 * @param shouldRealtime If true, this thread works as real time thread. otherwize false is set, this thread works as periodic std::thread.
 		 */
 		void start(bool shouldRealtime)
 		{
@@ -232,6 +234,10 @@ class RealtimeThread {
 		 * @brief Join the real time thread.
 		 *
 		 * @return If Join successfully, return true. Otherwise, false.
+		 * 
+		 * std::thread::join() will be called inside RealtimeThread::join().
+		 *
+		 * \NOTE If you want to 
 		 */
 		bool join()
 		{
@@ -253,7 +259,12 @@ class RealtimeThread {
 		/**
 		 * @brief Detach the real time thread.
 		 *
-		 * @return If Detach successfully, return true. Otherwise false.
+		 * @return If detachment will be successfully, return true. Otherwise false.
+		 *
+		 *  std::thread::detach() is called in detach() inside RealtimeThread::detach().
+		 *  
+		 * \NOTE Do not use detach() in order to terminate RealtimeThread.
+		 *       Please use end() or join().
 		 */
 		bool detach()
 		{
@@ -280,6 +291,11 @@ class RealtimeThread {
 		}
 
 
+		/**
+		  * @brief This thread will terminate before the thread will be called.
+		  * 
+		  * After end() is called, either join(), or detach() will be called appropriately in ~RealtimeThread().
+		  */
 		void end()
 		{
 			this->shouldEnd = true;
@@ -289,7 +305,9 @@ class RealtimeThread {
 		/**
 		 * @brief A destructor of real time thread.
 		 *
-		 * Invoke join() or detach().
+		 * Either join() or detach() will called appropriately.
+		 *
+		 * If this thread is joinable, join() is called. Otherwise, detach() is called.
 		 */
 		~RealtimeThread()
 		{

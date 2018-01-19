@@ -75,20 +75,6 @@ class PolicyThread {
 		}
 
 
-		/**
-		 * @brief Make loop to execute.
-		 */
-		void makeLoop()
-		{
-
-			while (!this->shouldEnd) {
-
-				this->function();
-
-			}
-		}
-	
-
 	public:
 		/**
 		 * @brief Check if thread is already start.
@@ -130,7 +116,7 @@ class PolicyThread {
 			this->priority = priority;
 
 			this->started = true;
-			this->thisThread = std::thread(&PolicyThread::makeLoop, this);
+			this->thisThread = std::thread(&PolicyThread::function, this);
 
 			//Make thread with priority and policy FIFO
 			this->init();

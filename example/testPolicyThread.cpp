@@ -9,9 +9,10 @@ using std::endl;
 int i = 0;
 
 void test(){
-	auto T = std::chrono::high_resolution_clock::now()+std::chrono::nanoseconds(1000000);
-	std::this_thread::sleep_until(T);
-	i++;
+	for (i = 0; i < 10; i++) {
+		auto T = std::chrono::high_resolution_clock::now()+std::chrono::nanoseconds(1000000);
+		std::this_thread::sleep_until(T);
+	}
 }
 
 int main(int argc, char const* argv[])
