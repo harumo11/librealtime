@@ -306,22 +306,5 @@ class RealtimeThread {
 			this->shouldEnd = true;
 		}
 
-
-		/**
-		 * @brief A destructor of real time thread.
-		 *
-		 * Either join() or detach() will called appropriately.
-		 *
-		 * If this thread is joinable, join() is called. Otherwise, detach() is called.
-		 */
-		~RealtimeThread()
-		{
-			if (this->joinable()) {
-				this->join();
-			}
-			else {
-				this->detach();
-			}
-		}
 };
 
