@@ -77,7 +77,6 @@ int main(void){
 	PolicyThread pth(func_policy, num);
 	//(Priority. fron 0 to 99)
 	pth.start(30);
-	sleep(3);
 	pth.join();
 }
 ```
