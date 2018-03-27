@@ -12,6 +12,8 @@ and the tasks with priority without difficult Linux kernel and POSIX API knowled
 You can use librealtime library like std::thread library.
 So, you can start to use librealtime quickly.
 
+Web API documentation is [HERE](https://harumo11.github.io/librealtime/)
+
 ## 2.Contents
 
 ### Library
@@ -21,7 +23,9 @@ So, you can start to use librealtime quickly.
 |PolicyThread|A std::thread added priority|SCHED_FIFO|
 
 ### The API documentation(Doxygen)
-**There is in librealtime/doc/index.html**.
+
+- [web api documentation](https://harumo11.github.io/librealtime/)
+- local api documentation(librealtime/docs/index.html)
 
 Please open with web browser(firefox, chrome and so on).
 
@@ -36,6 +40,7 @@ firefox index.html
 ## 3. How to use
 
 ### Realtime Thread
+
 ```cpp
 #include <iostream>
 #include <unistd.h>
@@ -55,7 +60,9 @@ int main(void){
 	rth.join();
 }
 ```
+
 ### Policy Thread
+
 ```cpp
 #include <iostream>
 #include <librealtime/PolicyThread.hpp>
@@ -76,6 +83,7 @@ int main(void){
 ```
 
 ## 3. Installation
+
 ```
 git clone https://github.com/harumo11/librealtime.git
 cd librealtime
@@ -83,12 +91,14 @@ sudo cp -r librealtime /usr/local/include
 ```
 
 ## 4.Dependency
+
 - librealtime can use **ONLY** linux.
 	This library was tested on **Ubuntu** and **Linux Mint**.
 - librealtime require C++11 or more greater.
 
 
 ## 5.Accuracy
+
 What's happen if realtime thread is made with PolicyThread?
 In other words, What's difference between RealtimeThread and PolicyThread?
 
@@ -108,6 +118,6 @@ The results are as below.
 ![Policy](./data/policy_test.png)
 
 |Thread|Average|Standerd deviation|Counts|
-|-----|--------|------------------|------|
+|------|--------|------------------|------|
 |RealtimeThread|1000129.986[nano sec]|1452.211[nano sec]|1000/1000 times|
 |PolicyThread|1060530.358[nano sec]|12778.745[nano sec]|944/1000 times|
