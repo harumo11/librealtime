@@ -19,7 +19,7 @@ int main(int argc, char const* argv[])
 {
 
 	PolicyThread pth(test);
-	pth.start();
+	pth.start(30);
 	pth.join();
 	
 	return 0;
