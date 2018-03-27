@@ -22,7 +22,9 @@ So, you can start to use librealtime quickly.
 
 ### The API documentation(Doxygen)
 **There is in librealtime/doc/index.html**.
-Please open with web browser(firefox, chrome and so on)
+
+Please open with web browser(firefox, chrome and so on).
+
 If you want to build the API documentation, type following commands.
 ```
 cd librealtime
@@ -106,6 +108,6 @@ The results are as below.
 ![Policy](./data/policy_test.png)
 
 |Thread|Average|Standerd deviation|Counts|
-|:-:|:-:|:-:|
+|-----|--------|------------------|------|
 |RealtimeThread|1000129.986[nano sec]|1452.211[nano sec]|1000/1000 times|
 |PolicyThread|1060530.358[nano sec]|12778.745[nano sec]|944/1000 times|
