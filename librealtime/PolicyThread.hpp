@@ -62,9 +62,9 @@ class PolicyThread {
 			pthread_getschedparam(this->thisThread.native_handle(), &this->policy, &sch);
 			sch.sched_priority = this->priority;
 
-			if (pthread_setschedparam(this->thisThread.native_handle(), SCHED_FIFO, &sch)) {
+			if (pthread_setschedparam(this->thisThread.native_handle(), SCHED_FIFO, &sch) != 0) {
+				std::cout << "[PolicyThread] faild to setschedparam |\t";
 				std::cout << std::strerror(errno) << std::endl;
-				std::cout << "[PolicyThread] faild to setschedparam" << std::endl;
 			}
 		}
 
@@ -115,39 +115,37 @@ class PolicyThread {
 			this->priority = priority;
 
 			this->started = true;
-			this->thisThread = std::thread(&PolicyThread::function, this);
+			//this->thisThread = std::thread(&PolicyThread::function, this);
+			this->thisThread = std::thread(this->function);
+			std::cout << "thread start" << std::endl;
 
 			//Make thread with priority and policy FIFO
 			this->init();
 		}
 
+		/**
+		 * @brief Get Priority from running thread.
+		 *
+		 * @return A priority of the thread.
+		 */
+		int getPriority(){
+			return this->priority;
+		}
 
 		/**
 		 * @brief Join the real time thread.
 		 *
-		 * @return If Join successfully, return true. Otherwise, false.
-		 *
 		 * Only std::thread::join() will be called in this function.
 		 *
-		 * \NOTE If you want to terminate this thread simply, use end().
-		 * Because this function just calls std::thread::join(), 
-		 * you need to send signal to the thread somehow before you use this function().
-		 * otherwise, this function continues to block, or never comes back.
 		 */
-		bool join()
+		void join()
 		{
 
 			if (this->isStarted()) {
-				try {
-					this->thisThread.join();
-				} catch (const std::system_error& e) {
-					std::cout << "[PolicyThread] Caught system_error with code " << e.code() << " meaning " << e.what() << std::endl;
-				}
-				return true;
+			  	this->thisThread.join();
 			}
 			else {
-				std::cout << "[PolicyThread] Thread is not yet to run. Can't Join" << std::endl;
-				return false;
+			 	std::cout << "[PolicyThread] Thread is not yet to run. Can't Join" << std::endl;
 			}
 		}
 
@@ -155,22 +153,16 @@ class PolicyThread {
 		/**
 		 * @brief Detach the real time thread.
 		 *
-		 * @return If Detach successfully, return true. Otherwise false.
-		 *
-		 * std::thread::detach() is called in this function. 
+		 * Just std::thread::detach() is called in this function. 
 		 * 
-		 * \NOTE Do not use detach() in order to terminate PolicyThread.
-		 * Please use end() or join().
 		 */
-		bool detach()
+		void detach()
 		{
 			if (this->isStarted()) {
 				this->thisThread.detach();
-				return true;
 			}
 			else {
 				std::cout << "[PolicyThread] Thread is not yet to run. Can't Detach." << std::endl;
-				return false;
 			}
 		}
 
@@ -183,27 +175,6 @@ class PolicyThread {
 		bool joinable()
 		{
 			return this->thisThread.joinable();
-		}
-
-
-		/**
-		 * @brief Terminate thread loop.
-		 *
-		 * After end() is called, either join(), or detach() will be called appropriately in ~PolicyThread().
-		 */
-		void end()
-		{
-			this->~PolicyThread();
-		}
-
-
-		/**
-		 * @brief Get Priority from running thread.
-		 *
-		 * @return A priority of the thread.
-		 */
-		int getPriority(){
-			return this->priority;
 		}
 
 };

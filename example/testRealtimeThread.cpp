@@ -23,7 +23,7 @@ int main(int argc, char const* argv[])
 	RealtimeThread th(1000, test);
 	th.start(true);
 	sleep(1);
-	th.end();
+	th.join();
 
 	cout << "Recode time" << endl;
 	std::ofstream file("log.csv");
