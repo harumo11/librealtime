@@ -117,7 +117,6 @@ class PolicyThread {
 			this->started = true;
 			//this->thisThread = std::thread(&PolicyThread::function, this);
 			this->thisThread = std::thread(this->function);
-			std::cout << "thread start" << std::endl;
 
 			//Make thread with priority and policy FIFO
 			this->init();
