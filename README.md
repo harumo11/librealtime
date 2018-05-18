@@ -12,17 +12,20 @@ and the tasks with priority without difficult Linux kernel and POSIX API knowled
 You can use librealtime library like std::thread library.
 So, you can start to use librealtime quickly.
 
+librealtime library works only on **Linux**. Windows does **NOT** supported.
+
 Web API documentation is [HERE](https://harumo11.github.io/librealtime/)
+
 
 ## 2.Contents
 
-### Library
+### 2.1 Library
 |Name|Discription|Scheduling|
 |----|-----------|----------|
 |RealtimeThread|A real-time periodic thread|SCHED_DEADLINE|
 |PolicyThread|A std::thread added priority|SCHED_FIFO|
 
-### The API documentation(Doxygen)
+### 2.2 The API documentation(Doxygen)
 
 - [web api documentation](https://harumo11.github.io/librealtime/)
 - local api documentation(librealtime/docs/index.html)
@@ -39,7 +42,7 @@ firefox index.html
 
 ## 3. How to use
 
-### Realtime Thread
+### 3.1 Realtime Thread
 
 ```cpp
 #include <iostream>
@@ -54,14 +57,14 @@ int main(void){
     //(Freequency[Hz], function, arguments)
 	RealtimeThread rth(10, func, 1234);
 	
-	//Run in 10 sec. If set true, get RealTime thread, otherwise, nomal priodic thread.
+	//Run in 3 sec. If set true, get RealTime thread, otherwise, nomal priodic thread.
 	rth.start(true);
 	sleep(3);
 	rth.join();
 }
 ```
 
-### Policy Thread
+### 3.2 Policy Thread
 
 ```cpp
 #include <iostream>
@@ -75,13 +78,15 @@ int main(void){
 
 	//set function and arguments
 	PolicyThread pth(func_policy, num);
-	//(Priority. fron 0 to 99)
+	//(Priority. from 0 to 99)
 	pth.start(30);
 	pth.join();
 }
 ```
 
-## 3. Installation
+## 3.3 Installation
+
+You can start to try librealtime in 30 seconds!
 
 ```
 git clone https://github.com/harumo11/librealtime.git
@@ -96,7 +101,7 @@ sudo cp -r librealtime /usr/local/include
 - librealtime require C++11 or more greater.
 
 
-## 5.Accuracy
+## 5.Accuracy (Realtime thread **vs.** Policy thread + max priority)
 
 What's happen if realtime thread is made with PolicyThread?
 In other words, What's difference between RealtimeThread and PolicyThread?
