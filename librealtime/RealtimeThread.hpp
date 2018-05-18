@@ -174,6 +174,15 @@ class RealtimeThread {
 
 	public:
 		/**
+		 * @brief Get set period of this thread.
+		 *
+		 * @return The period [sec]
+		 */
+		double getPeriodAsSecond(){
+			return this->periodSecond;
+		}
+
+		/**
 		 * @brief Check if thread is already start.
 		 * 
 		 * If already started, return true. Othrewise return false.
