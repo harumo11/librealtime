@@ -174,6 +174,15 @@ class RealtimeThread {
 
 	public:
 		/**
+		 * @brief Get set period of this thread.
+		 *
+		 * @return The period [sec]
+		 */
+		double getPeriodAsSecond(){
+			return this->periodSecond;
+		}
+
+		/**
 		 * @brief Check if thread is already start.
 		 * 
 		 * If already started, return true. Othrewise return false.
@@ -205,8 +214,6 @@ class RealtimeThread {
 			else {
 				this->periodSecond = (double)1/frequency;
 				this->periodNonoSecond = static_cast<unsigned long long>(this->periodSecond * std::pow(10, 9));
-				std::cout << "period second = " << this->periodSecond << std::endl;
-				std::cout << "period nanosecond = " << this->periodNonoSecond << std::endl;
 			}
 
 			this->function = std::bind(std::forward<F>(func), std::forward<Args>(args)...);
