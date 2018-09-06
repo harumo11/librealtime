@@ -1,3 +1,6 @@
+//
+//This simple program is made to evaluate the performance of librealtime.
+//
 #include <iostream>
 #include <string>
 #include <vector>
