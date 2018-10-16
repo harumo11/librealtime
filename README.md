@@ -101,7 +101,7 @@ sudo cp -r librealtime /usr/local/include
 - librealtime require C++11 or more greater.
 
 
-## 5.Accuracy (Realtime thread **vs.** Policy thread + max priority)
+## 5.Accuracy (Realtime thread **vs.** Policy thread + max priority + timer)
 
 What's happen if realtime thread is made with PolicyThread?
 In other words, What's difference between RealtimeThread and PolicyThread?
@@ -109,8 +109,9 @@ In other words, What's difference between RealtimeThread and PolicyThread?
 Ok, Let's conduct a experiment!
 
 Two program are made for experiment. you can find those programs in
-**librealtime/example/testRealtimeThread.cpp, PolicyThread.cpp**
-Those program try to call certain function 1000 times in 1 second. One program has a thread which is made by RealtimeThread, Onother program has a thread which is made by PolicyThread.
+**librealtime/example/testRealtimeThread.cpp, PolicyThread_e.cpp**
+Those program tries to call a function 1000 times in 1 second. One program has a thread which is made by RealtimeThread, 
+Another program has a thread which is made by PolicyThread and timer which wakes up every 1/1000 sec.
 
 In short, environment of experiment is as below.
 - 1000[Hz]
