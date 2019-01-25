@@ -126,3 +126,6 @@ The results are as below.
 |------|--------|------------------|------|
 |RealtimeThread|1000129.986[nano sec]|1452.211[nano sec]|1000/1000 times|
 |PolicyThread|1060530.358[nano sec]|12778.745[nano sec]|944/1000 times|
+
+**NOTE** RealtimeThread occupy a core. If you use three RealtimeThread, three cores can not
+be used with other task. PolicyThread does not occupy a core.
