@@ -252,7 +252,7 @@ class RealtimeThread {
 					this->thisThread.join();
 			}
 			else {
-				std::cout << "[Thread is not yet to run. Can't Join" << std::endl;
+				std::cout << "[ERROR] RealtimeThread is not yet to run. Can't Join" << std::endl;
 			}
 		}
 
@@ -269,7 +269,7 @@ class RealtimeThread {
 				this->thisThread.detach();
 			}
 			else {
-				std::cout << "[Thread is not yet to run. Can't Detach" << std::endl;
+				std::cout << "[ERROR] RealtimeThread is not yet to run. Can't Detach" << std::endl;
 			}
 		}
 
