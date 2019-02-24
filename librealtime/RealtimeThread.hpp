@@ -88,7 +88,7 @@ class RealtimeThread {
 		/**
 		 * @brief Get sched_attr struct.
 		 *
-		 * Implimation fo sched_getattr() using system call.
+		 * Implimation for sched_getattr() using system call.
 		 *
 		 * @param pid This process Id / This thread Id
 		 * @param attr sched_attr
