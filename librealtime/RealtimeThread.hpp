@@ -66,6 +66,12 @@ class RealtimeThread {
 		 */
 		unsigned long long periodNonoSecond = 0;
 
+		/**
+		 * @brief frequency[Hz] of thread loop.
+		 *
+		 * This variable is specified in the constructor.
+		 */
+		double frequency = 0;
 
 		/**
 		 * @brief store the thread task.
@@ -177,9 +183,16 @@ class RealtimeThread {
 		 * @brief Get set period of this thread.
 		 *
 		 * @return The period [sec]
+		 * \f[
+		 *		frac{1}{Hz}
+		 * \f]
 		 */
 		double getPeriodAsSecond(){
 			return this->periodSecond;
+		}
+
+		double getFrequency(){
+			return this->frequency;
 		}
 
 		/**
@@ -209,9 +222,10 @@ class RealtimeThread {
 		RealtimeThread(double frequency, F&& func, Args&&... args)
 		{
 			if (frequency <= 0) {
-				std::cout << "[RealtimeThread] Get invalid freequency" << std::endl;
+				std::cout << "[RealtimeThread] Get invalid frequency" << std::endl;
 			}
 			else {
+				this->frequency = frequency;
 				this->periodSecond = (double)1/frequency;
 				this->periodNonoSecond = static_cast<unsigned long long>(this->periodSecond * std::pow(10, 9));
 			}
