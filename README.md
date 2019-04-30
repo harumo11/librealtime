@@ -83,6 +83,16 @@ int main(void){
 	pth.join();
 }
 ```
+More samples can be found in example directory.
+In order build, type following commands.
+
+```
+cd librealtime/example
+mkdir build
+cd build
+cmake ..
+make
+```
 
 ## 3.3 Installation
 
