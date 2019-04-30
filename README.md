@@ -64,6 +64,18 @@ int main(void){
 }
 ```
 
+When this program is run, "1234" x 30 should be output.
+```
+1234
+1234
+1234
+.
+.
+.
+1234
+```
+
+
 ### 3.2 Policy Thread
 
 ```cpp
