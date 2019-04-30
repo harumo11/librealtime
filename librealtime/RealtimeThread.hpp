@@ -146,7 +146,7 @@ class RealtimeThread {
 
 			this->attr.size = sizeof(attr);
 			this->attr.sched_policy = SCHED_DEADLINE;
-			this->attr.sched_runtime = this->periodNonoSecond*0.3;
+			this->attr.sched_runtime = this->periodNonoSecond;
 			this->attr.sched_deadline = this->periodNonoSecond;
 			this->attr.sched_period  = this->periodNonoSecond;
 
