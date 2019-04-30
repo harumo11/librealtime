@@ -14,7 +14,7 @@ void test(std::vector<std::chrono::high_resolution_clock::time_point>& time_poin
 int main(void)
 {	
 	std::vector<std::chrono::high_resolution_clock::time_point> time_record;
-	RealtimeThread th(1000, test, time_record);
+	RealtimeThread th(100, test, time_record);
 	th.start(true);
 	sleep(10);
 	th.join();
