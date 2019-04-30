@@ -93,6 +93,7 @@ git clone https://github.com/harumo11/librealtime.git
 cd librealtime
 sudo cp -r librealtime /usr/local/include
 ```
+Because librealtime is a header only library, you **Do NOT** need to build.
 
 ## 4.Dependency
 
