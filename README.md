@@ -120,7 +120,7 @@ Because librealtime is a header only library, you **Do NOT** need to build.
 ## 4.Dependency
 
 - librealtime can use **ONLY** linux.
-	This library was tested on **Ubuntu** and **Linux Mint**.
+	This library was tested on **Ubuntu**, **Linux Mint**, **Debian**.
 - librealtime require C++11 or more greater.
 
 

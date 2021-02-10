@@ -12,20 +12,20 @@
 
 using namespace std;
 
-//std::vector<std::chrono::high_resolution_clock::time_point> vec(2000);
-std::array<std::chrono::high_resolution_clock::time_point, 1000> time_array;
+const size_t size = 1000;
+std::array<std::chrono::high_resolution_clock::time_point, size> time_array;
 int i = 0;
 
 void test()
 {
 	auto point = std::chrono::high_resolution_clock::now();
-	time_array[i] = point;
+	if(i<size) time_array[i] = point;
 	i++;
 }
 
 int main(int argc, char const* argv[])
 {
-	RealtimeThread th(1000, test);
+	RealtimeThread th(size, test);
 	th.start(true);
 	sleep(1);
 	th.join();

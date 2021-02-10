@@ -12,6 +12,11 @@
 #include <sys/syscall.h>
 #include <sys/types.h>
 
+#ifndef SCHED_DEADLINE
+  #define REQ_NICE
+  #include <linux/sched.h>
+#endif
+
 /**
  * @brief Scheduling attributer. It is used to set configuration of realtime
  */
@@ -24,7 +29,9 @@ struct sched_attr
 
 	//SCHED_FIFO, SCHED_RR
 	uint32_t sched_priority;
-
+#ifdef REQ_NICE
+    int32_t sched_nice;
+#endif
 	//SCHED_DEADLINE
 	uint64_t sched_runtime;
 	uint64_t sched_deadline;
