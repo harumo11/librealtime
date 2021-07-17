@@ -145,7 +145,7 @@ class RealtimeThread {
 		/**
 		 * @brief Set parameters to make real time thread using posix api.
 		 */
-		void init()
+		void setRealtimeConfigParams()
 		{
 			if (this->sched_getattr(this->gettid(), &this->attr, sizeof(this->attr), 0) == -1) {
 				std::cout << "[ERROR] Invalid param in sched_getattr() " << std::endl;
@@ -255,7 +255,7 @@ class RealtimeThread {
 
 			//Make realtime thread using this->thisThread's id.
 			if (shouldRealtime) {
-				this->init();
+				this->setRealtimeConfigParams();
 			}
 		}
 
