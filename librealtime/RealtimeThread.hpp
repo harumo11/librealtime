@@ -1,309 +1,284 @@
 #pragma once
 
-#include <iostream>
-#include <string>
-#include <thread>
 #include <chrono>
-#include <functional>
 #include <cmath>
-#include <unistd.h>
+#include <functional>
+#include <iostream>
 #include <pthread.h>
 #include <sched.h>
+#include <string>
 #include <sys/syscall.h>
 #include <sys/types.h>
+#include <thread>
+#include <unistd.h>
 
 #ifndef SCHED_DEADLINE
-  #define REQ_NICE
-  #include <linux/sched.h>
+#define REQ_NICE
+#include <linux/sched.h>
 #endif
 
 /**
  * @brief Scheduling attributer. It is used to set configuration of realtime
  */
-struct sched_attr 
-{
-	uint32_t size;
+struct sched_attr {
+    uint32_t size;
 
-	uint32_t sched_policy;
-	uint64_t sched_flags;
+    uint32_t sched_policy;
+    uint64_t sched_flags;
 
-	//SCHED_FIFO, SCHED_RR
-	uint32_t sched_priority;
+    // SCHED_FIFO, SCHED_RR
+    uint32_t sched_priority;
 #ifdef REQ_NICE
     int32_t sched_nice;
 #endif
-	//SCHED_DEADLINE
-	uint64_t sched_runtime;
-	uint64_t sched_deadline;
-	uint64_t sched_period;
+    // SCHED_DEADLINE
+    uint64_t sched_runtime;
+    uint64_t sched_deadline;
+    uint64_t sched_period;
 };
 
 /**
  * @brief A real time thread.
- *	
+ *
  * This class make a periodic thread.
  * the thread's loop is invoked with strict frequency.
  * This thread class allows you to use like std::thread.
  */
 class RealtimeThread {
 
-	private:
-		/**
-		 * @brief period[sec] of thread loop.
-		 */
-		double periodSecond = 0;					 
+  private:
+    /**
+     * @brief period[sec] of thread loop.
+     */
+    double periodSecond = 0;
 
+    /**
+     * @brief If started, set true, Othrewise false.
+     */
+    bool started = false;
 
-		/**
-		 * @brief If started, set true, Othrewise false.
-		 */
-		bool started = false;
+    /**
+     * @brief If true, break realtime while loop. This is checkd every loop.
+     */
+    bool shouldEnd = false;
 
+    /**
+     * @brief period[nanosec] of thread loop.
+     *
+     * This variable is converted from periodSecond.
+     */
+    unsigned long long periodNonoSecond = 0;
 
-		/**
-		 * @brief If true, break realtime while loop. This is checkd every loop.
-		 */
-		bool shouldEnd = false;
+    /**
+     * @brief frequency[Hz] of thread loop.
+     *
+     * This variable is specified in the constructor.
+     */
+    double frequency = 0;
 
+    /**
+     * @brief store the thread task.
+     */
+    std::function<void()> function;
 
-		/**
-		 * @brief period[nanosec] of thread loop.
-		 * 
-		 * This variable is converted from periodSecond.
-		 */
-		unsigned long long periodNonoSecond = 0;
+    /**
+     * @brief A thread of this class.
+     */
+    std::thread thisThread;
 
-		/**
-		 * @brief frequency[Hz] of thread loop.
-		 *
-		 * This variable is specified in the constructor.
-		 */
-		double frequency = 0;
+    /**
+     * @brief Scheduing attributer. It is used to set configuration of realtime.
+     */
+    sched_attr attr;
 
-		/**
-		 * @brief store the thread task.
-		 */
-		std::function<void()> function;
+    /**
+     * @brief Get sched_attr struct.
+     *
+     * Implimation for sched_getattr() using system call.
+     *
+     * @param pid This process Id / This thread Id
+     * @param attr sched_attr
+     * @param size size of sched_attr
+     * @param flags set 0
+     *
+     * @return If successed, return 0, Otherwise -1. Meaning of error is set in
+     * erroro.
+     */
+    static int sched_getattr(pid_t pid, struct sched_attr *attr,
+                             unsigned int size, unsigned int flags) {
+        return syscall(__NR_sched_getattr, pid, attr, size, flags);
+    }
 
+    /**
+     * @brief Set sched_attr struct.
+     *
+     * @param pid This proccess Id / This thread Id
+     * @param attr sched_attr
+     * @param flags set 0
+     *
+     * @return If successed. return 0, Otherwise -1. Meaning of error is set in
+     * erroro.
+     */
+    static int sched_setattr(pid_t pid, const struct sched_attr *attr,
+                             unsigned int flags) {
+        return syscall(__NR_sched_setattr, pid, attr, flags);
+    }
 
-		/**
-		 * @brief A thread of this class.
-		 */
-		std::thread thisThread;
+    /**
+     * @brief Get this thread Id using system call.
+     *
+     * @return This thread Id
+     */
+    pid_t gettid(void) { return syscall(SYS_gettid); }
 
+    /**
+     * @brief Set parameters to make real time thread using posix api.
+     */
+    void setRealtimeConfigParams() {
+        if (this->sched_getattr(this->gettid(), &this->attr, sizeof(this->attr),
+                                0) == -1) {
+            std::cout << "[ERROR] Invalid param in sched_getattr() "
+                      << std::endl;
+        }
 
-		/**
-		 * @brief Scheduing attributer. It is used to set configuration of realtime.
-		 */
-		sched_attr attr;
+        this->attr.size = sizeof(attr);
+        this->attr.sched_policy = SCHED_DEADLINE;
+        this->attr.sched_runtime = this->periodNonoSecond;
+        this->attr.sched_deadline = this->periodNonoSecond;
+        this->attr.sched_period = this->periodNonoSecond;
 
+        if (this->sched_setattr(this->gettid(), &this->attr, 0) == -1) {
+            std::cout << "[ERROR] Invalid param in sched_setattr() "
+                      << std::endl;
+            std::cout << "Did you execute with super user privilege? "
+                      << std::endl;
+        }
+    }
 
-		/**
-		 * @brief Get sched_attr struct.
-		 *
-		 * Implimation for sched_getattr() using system call.
-		 *
-		 * @param pid This process Id / This thread Id
-		 * @param attr sched_attr
-		 * @param size size of sched_attr
-		 * @param flags set 0
-		 *
-		 * @return If successed, return 0, Otherwise -1. Meaning of error is set in erroro.
-		 */
-		static int sched_getattr(pid_t pid, struct sched_attr *attr,  unsigned int size, unsigned int flags)
-		{
-			return syscall(__NR_sched_getattr, pid, attr, size, flags);
-		}
+    /**
+     * @brief Make loop to execute.
+     */
+    void makeLoop() {
+        auto timePoint = std::chrono::high_resolution_clock::now();
+        while (!this->shouldEnd) {
+            auto T = std::chrono::high_resolution_clock::now() +
+                     std::chrono::nanoseconds(this->periodNonoSecond);
 
+            this->function();
 
-		/**
-		 * @brief Set sched_attr struct.
-		 *
-		 * @param pid This proccess Id / This thread Id
-		 * @param attr sched_attr
-		 * @param flags set 0
-		 *
-		 * @return If successed. return 0, Otherwise -1. Meaning of error is set in erroro.
-		 */
-		static int sched_setattr(pid_t pid, const struct sched_attr *attr, unsigned int flags)
-		{
-			return syscall(__NR_sched_setattr, pid, attr, flags);
-		}
+            timePoint = std::chrono::high_resolution_clock::now();
 
+            // sleep until next waking time.
+            while (T >= std::chrono::high_resolution_clock::now()) {
+            }
+        }
+    }
 
-		/**
-		 * @brief Get this thread Id using system call.
-		 *
-		 * @return This thread Id
-		 */
-		pid_t gettid(void)
-		{
-			return syscall(SYS_gettid);
-		}
+  public:
+    /**
+     * @brief Get set period of this thread.
+     *
+     * @return The period [sec]
+     * \f[
+     *		frac{1}{Hz}
+     * \f]
+     */
+    double getPeriodAsSecond() { return this->periodSecond; }
 
+    double getFrequency() { return this->frequency; }
 
-		/**
-		 * @brief Set parameters to make real time thread using posix api.
-		 */
-		void setRealtimeConfigParams()
-		{
-			if (this->sched_getattr(this->gettid(), &this->attr, sizeof(this->attr), 0) == -1) {
-				std::cout << "[ERROR] Invalid param in sched_getattr() " << std::endl;
-			}
+    /**
+     * @brief Check if thread is already start.
+     *
+     * If already started, return true. Othrewise return false.
+     */
+    bool isStarted() {
+        if (this->started) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
-			this->attr.size = sizeof(attr);
-			this->attr.sched_policy = SCHED_DEADLINE;
-			this->attr.sched_runtime = this->periodNonoSecond;
-			this->attr.sched_deadline = this->periodNonoSecond;
-			this->attr.sched_period  = this->periodNonoSecond;
+    /**
+     * @brief A constructor of real time thread class.
+     *
+     * @param frequency Frequency of executing task of the thread [Hz].
+     * @param func Function to execute in thread loop.
+     * @param args Arguments of func. You can set not only one argument but also
+     * multiple arguments.
+     */
+    template <class F, class... Args>
+    RealtimeThread(double frequency, F &&func, Args &&...args) {
+        if (frequency <= 0) {
+            std::cout << "[RealtimeThread] Get invalid frequency" << std::endl;
+        } else {
+            this->frequency = frequency;
+            this->periodSecond = (double)1 / frequency;
+            this->periodNonoSecond = static_cast<unsigned long long>(
+                this->periodSecond * std::pow(10, 9));
+        }
 
-			if (this->sched_setattr(this->gettid(), &this->attr, 0) == -1) {
-				std::cout << "[ERROR] Invalid param in sched_setattr() " << std::endl;
-				std::cout << "Did you execute with super user privilege? " << std::endl;
-			}
-		}
+        this->function =
+            std::bind(std::forward<F>(func), std::forward<Args>(args)...);
+    }
 
+    /**
+     * @brief This method allows to start thread loop.
+     *
+     * @param shouldRealtime If true, this thread works as real time thread.
+     * otherwize false is set, this thread works as periodic std::thread.
+     *
+     * Starting your thread with DEADLINE policy which is a real time thread
+     * controlling method.
+     */
+    void start(bool shouldRealtime) {
+        this->started = true;
+        this->thisThread = std::thread(&RealtimeThread::makeLoop, this);
+        // this->thisThread = std::thread(this->function);
 
-		/**
-		 * @brief Make loop to execute.
-		 */
-		void makeLoop()
-		{
-			auto timePoint = std::chrono::high_resolution_clock::now();
-			while (!this->shouldEnd) {
-				auto T = std::chrono::high_resolution_clock::now() + std::chrono::nanoseconds(this->periodNonoSecond);
+        // Make realtime thread using this->thisThread's id.
+        if (shouldRealtime) {
+            this->setRealtimeConfigParams();
+        }
+    }
 
-				this->function();
+    /**
+     * @brief Join the real time thread.
+     *
+     * Just std::thread::join() will be called inside RealtimeThread::join().
+     *
+     */
+    void join() {
+        this->shouldEnd = true;
+        if (this->isStarted()) {
+            this->thisThread.join();
+        } else {
+            std::cout << "[ERROR] RealtimeThread is not yet to run. Can't Join"
+                      << std::endl;
+        }
+    }
 
-				timePoint = std::chrono::high_resolution_clock::now();
+    /**
+     * @brief Detach the real time thread.
+     *
+     *  Just std::thread::detach() is called in detach() in this function.
+     */
+    void detach() {
+        this->shouldEnd = true;
+        if (this->isStarted()) {
+            this->thisThread.detach();
+        } else {
+            std::cout
+                << "[ERROR] RealtimeThread is not yet to run. Can't Detach"
+                << std::endl;
+        }
+    }
 
-				//sleep until next waking time.
-				while (T >= std::chrono::high_resolution_clock::now()) {
-				}
-			}
-		}
-	
-
-	public:
-		/**
-		 * @brief Get set period of this thread.
-		 *
-		 * @return The period [sec]
-		 * \f[
-		 *		frac{1}{Hz}
-		 * \f]
-		 */
-		double getPeriodAsSecond(){
-			return this->periodSecond;
-		}
-
-		double getFrequency(){
-			return this->frequency;
-		}
-
-		/**
-		 * @brief Check if thread is already start.
-		 * 
-		 * If already started, return true. Othrewise return false.
-		 */
-		bool isStarted()
-		{
-			if (this->started) {
-				return true;
-			}
-			else {
-				return false;
-			}
-		}
-
-
-		/**
-		 * @brief A constructor of real time thread class.
-		 * 
-		 * @param frequency Frequency of executing task of the thread [Hz].
-		 * @param func Function to execute in thread loop.
-		 * @param args Arguments of func. You can set not only one argument but also multiple arguments.
-		 */
-		template <class F, class... Args>
-		RealtimeThread(double frequency, F&& func, Args&&... args)
-		{
-			if (frequency <= 0) {
-				std::cout << "[RealtimeThread] Get invalid frequency" << std::endl;
-			}
-			else {
-				this->frequency = frequency;
-				this->periodSecond = (double)1/frequency;
-				this->periodNonoSecond = static_cast<unsigned long long>(this->periodSecond * std::pow(10, 9));
-			}
-
-			this->function = std::bind(std::forward<F>(func), std::forward<Args>(args)...);
-		}
-
-
-		/**
-		 * @brief This method allows to start thread loop.
-		 *
-		 * @param shouldRealtime If true, this thread works as real time thread. otherwize false is set, this thread works as periodic std::thread.
-		 *
-		 * Starting your thread with DEADLINE policy which is a real time thread controlling method.
-		 */
-		void start(bool shouldRealtime)
-		{
-			this->started = true;
-			this->thisThread = std::thread(&RealtimeThread::makeLoop, this);
-			//this->thisThread = std::thread(this->function);
-
-			//Make realtime thread using this->thisThread's id.
-			if (shouldRealtime) {
-				this->setRealtimeConfigParams();
-			}
-		}
-
-		/**
-		 * @brief Join the real time thread.
-		 *
-		 * Just std::thread::join() will be called inside RealtimeThread::join().
-		 *
-		 */
-		void join()
-		{
-			this->shouldEnd = true;
-			if (this->isStarted()) {
-					this->thisThread.join();
-			}
-			else {
-				std::cout << "[ERROR] RealtimeThread is not yet to run. Can't Join" << std::endl;
-			}
-		}
-
-
-		/**
-		 * @brief Detach the real time thread.
-		 *
-		 *  Just std::thread::detach() is called in detach() in this function.
-		 */
-		void detach()
-		{
-			this->shouldEnd = true;
-			if (this->isStarted()) {
-				this->thisThread.detach();
-			}
-			else {
-				std::cout << "[ERROR] RealtimeThread is not yet to run. Can't Detach" << std::endl;
-			}
-		}
-
-
-		/**
-		 * @brief Check the thread can join or not.
-		 *
-		 * @return If the thread can join, return true. Otherwise false.
-		 */
-		bool joinable()
-		{
-			return this->thisThread.joinable();
-		}
-
-
+    /**
+     * @brief Check the thread can join or not.
+     *
+     * @return If the thread can join, return true. Otherwise false.
+     */
+    bool joinable() { return this->thisThread.joinable(); }
 };
-

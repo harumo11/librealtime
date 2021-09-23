@@ -1,44 +1,57 @@
 //
-//This simple program is made to evaluate the performance of librealtime.
+// This simple program is made to evaluate the performance of librealtime.
 //
+#include "../librealtime/RealtimeThread.hpp"
+#include <array>
+#include <chrono>
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <array>
-#include <fstream>
-#include <chrono>
-#include <unistd.h>
-#include "../librealtime/RealtimeThread.hpp"
 
 using namespace std;
 
-const size_t size = 1000;
-std::array<std::chrono::high_resolution_clock::time_point, size> time_array;
 int i = 0;
+const size_t array_size = 1000;
+std::chrono::high_resolution_clock::time_point last_time_point;
+std::array<double, array_size> time_array;
 
-void test()
-{
-	auto point = std::chrono::high_resolution_clock::now();
-	if(i<size) time_array[i] = point;
-	i++;
+void test() {
+    auto now = std::chrono::high_resolution_clock::now();
+    if (i < array_size) {
+        double diff =
+            std::chrono::duration<double>(now - last_time_point).count();
+        last_time_point = now;
+        time_array[i] = diff;
+    }
+    i++;
 }
 
-int main(int argc, char const* argv[])
-{
-	RealtimeThread th(size, test);
-	th.start(true);
-	sleep(1);
-	th.join();
+int main(int argc, char const *argv[]) {
 
-	cout << "Recode time" << endl;
-	std::ofstream file("log.csv");
-	
-	for(auto &e : time_array){
-		file << e.time_since_epoch().count() << std::endl;
-		std::cout << e.time_since_epoch().count() << std::endl;
-	}
-	cout << "[count] : " << i << std::endl;
-	file.close();
-	
-	return 0;
+    // setting
+    last_time_point = std::chrono::high_resolution_clock::now();
+    const int freqency = 1000;
+
+    // run realtime thread
+    RealtimeThread th(freqency, test);
+    th.start(true);
+    // wait for 1 second
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+    // finish realtime thread
+    th.join();
+
+    // write result
+    cout << "Recode time" << endl;
+    std::ofstream file("log.csv");
+
+    for (auto &e : time_array) {
+        file << std::setprecision(10) << e << std::endl;
+        std::cout << std::setprecision(10) << e << std::endl;
+    }
+    cout << "[count] : " << i << std::endl;
+    file.close();
+
+    return 0;
 }
