@@ -145,10 +145,10 @@ The results are as below.
 ![Realtime](./data/realtime_test.png)
 ![Policy](./data/policy_test.png)
 
-|Thread|Average|Standerd deviation|Counts|
+|Thread|Average (ideal 1000.0 micro sec)|Standerd deviation (ideal 0 micro sec)|Counts|
 |------|--------|------------------|------|
-|RealtimeThread|1000129.986[nano sec]|1452.211[nano sec]|1000/1000 times|
-|PolicyThread|1060530.358[nano sec]|12778.745[nano sec]|944/1000 times|
+|RealtimeThread|1000.129986[micro sec]|1.452211[micro sec]|1000/1000 times|
+|PolicyThread|1060.530358[micro sec]|12.778745[micro sec]|944/1000 times|
 
 **NOTE** RealtimeThread occupy a core. If you use three RealtimeThread, three cores can not
 be used with other task. PolicyThread does not occupy a core.
